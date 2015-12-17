@@ -1,4 +1,5 @@
 require 'tempfile'
+require 'json'
 
 module Dissever
   ##
@@ -7,7 +8,8 @@ module Dissever
     def initialize(params = {}, &block)
       @options = params
       @options[:size] ||= 10
-      @targets = block.call
+      @targets = params[:targets] || block && block.call
+      fail('No targets given') unless @targets
     end
 
     def run!
@@ -41,13 +43,14 @@ module Dissever
       writer.close
       log '*', false
     rescue StandardError => e
-      error "#{target}: #{e.message}"
+      error "#{name}: #{e.message}"
     end
 
     def create_file(results)
       tempfile = Tempfile.new('dissever')
       ObjectSpace.undefine_finalizer(tempfile)
-      tempfile << JSON.dump(results)
+      # Since JSON objects need to be objects or arrays, encapsulate the results
+      tempfile << JSON.dump([results])
       tempfile.close
       tempfile.path
     end
@@ -55,7 +58,10 @@ module Dissever
     def parse_readers(readers)
       files = readers.map { |name, reader| [name, reader.read] }
       files = check_files(files)
-      results = files.map { |name, file| [name, JSON.parse(File.read(file))] }
+      results = files.map do |name, file|
+        # Results are encapsulated in an array in create_file. Reverse this here
+        [name, JSON.parse(File.read(file)).first]
+      end
       files.each { |_, file| File.unlink file }
       Hash[results]
     end
