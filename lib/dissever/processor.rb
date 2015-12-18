@@ -8,12 +8,12 @@ module Dissever
     def initialize(params = {}, &block)
       @options = params
       @options[:size] ||= 10
-      @targets = params[:targets] || block && block.call
-      fail('No targets given') unless @targets
+      @tasks = params[:tasks] || block && block.call
+      fail('No tasks given') unless @tasks
     end
 
     def run!
-      log '*' * @targets.size
+      log '*' * @tasks.size
       readers = fork_master
       log
       parse_readers(readers)
@@ -22,7 +22,7 @@ module Dissever
     private
 
     def fork_master
-      @targets.each_slice(@options[:size]).flat_map { |slice| fork_pool(slice) }
+      @tasks.each_slice(@options[:size]).flat_map { |slice| fork_pool(slice) }
     end
 
     def fork_pool(slice)
