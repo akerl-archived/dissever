@@ -5,10 +5,10 @@ module Dissever
   ##
   # Processor object, for running multiprocessed tasks
   class Processor
-    def initialize(params = {}, &block)
+    def initialize(params = {})
       @options = params
       @options[:size] ||= 10
-      @tasks = params[:tasks] || block && block.call
+      @tasks = params[:tasks] || yield
       fail('No tasks given') unless @tasks
     end
 
@@ -36,10 +36,10 @@ module Dissever
       res
     end
 
-    def thread_run(reader, writer, name, &block)
+    def thread_run(reader, writer, name)
       $PROGRAM_NAME = "#{$PROGRAM_NAME} thread #{name}"
       reader.close
-      writer << create_file(block.call)
+      writer << create_file(yield)
       writer.close
       log '*', false
     rescue StandardError => e
