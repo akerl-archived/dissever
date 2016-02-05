@@ -9,7 +9,7 @@ module Dissever
       @options = params
       @options[:size] ||= 10
       @tasks = params[:tasks] || yield
-      fail('No tasks given') unless @tasks
+      raise('No tasks given') unless @tasks
     end
 
     def run!
