@@ -62,14 +62,14 @@ module Dissever
         # Results are encapsulated in an array in create_file. Reverse this here
         [name, JSON.parse(File.read(file)).first]
       end
-      files.each_value { |file| File.unlink file }
+      files.each { |_, file| File.unlink file }
       Hash[results]
     end
 
     def check_files(files)
       files, bad_apples = files.partition { |_, file| File.exist?(file) }
       if bad_apples.nil?
-        bad_apples.each_key { |name| error "Failed to load results for #{name}" }
+        bad_apples.each { |name, _| error "Failed to load results for #{name}" }
       end
       files
     end
