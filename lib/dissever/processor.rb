@@ -75,7 +75,7 @@ module Dissever
     end
 
     def log(msg = nil, newline = true)
-      STDERR.print("#{msg}#{"\n" if newline}") unless @options[:quiet]
+      warn("#{msg}#{"\n" if newline}") unless @options[:quiet]
     end
 
     def error(msg)
