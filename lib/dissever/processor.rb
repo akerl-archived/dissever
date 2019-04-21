@@ -79,7 +79,7 @@ module Dissever
     end
 
     def error(msg)
-      STDERR.puts msg
+      warn msg
     end
   end
 end
